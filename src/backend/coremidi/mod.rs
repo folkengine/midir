@@ -78,7 +78,7 @@ impl MidiInput {
         let data = &mut handler_data.user_data.as_mut().unwrap();
         for p in packets.iter() {
             let pdata = p.data();
-            if pdata.len() == 0 {
+            if pdata.is_empty() {
                 continue;
             }
 
@@ -197,7 +197,7 @@ impl MidiInput {
             Ok(p) => p,
             Err(_) => return Err(ConnectError::other("error creating MIDI input port", self)),
         };
-        if let Err(_) = iport.connect_source(&port.source) {
+        if iport.connect_source(&port.source).is_err() {
             return Err(ConnectError::other(
                 "error connecting MIDI input port",
                 self,
@@ -206,7 +206,7 @@ impl MidiInput {
         Ok(MidiInputConnection {
             client: self.client,
             details: InputConnectionDetails::Explicit(iport),
-            handler_data: handler_data,
+            handler_data,
         })
     }
 
@@ -236,7 +236,7 @@ impl MidiInput {
         Ok(MidiInputConnection {
             client: self.client,
             details: InputConnectionDetails::Virtual(vrt),
-            handler_data: handler_data,
+            handler_data,
         })
     }
 }
@@ -392,7 +392,7 @@ impl MidiOutputConnection {
         let packets = PacketBuffer::new(send_time, message);
         match self.details {
             OutputConnectionDetails::Explicit(ref port, ref dest) => port
-                .send(&dest, &packets)
+                .send(dest, &packets)
                 .map_err(|_| SendError::Other("error sending MIDI message to port")),
             OutputConnectionDetails::Virtual(ref vrt) => vrt
                 .received(&packets)

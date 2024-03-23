@@ -7,7 +7,7 @@ use backend::{
 };
 use errors::*;
 
-use crate::{backend, errors, Ignore, InitError};
+use crate::{backend, errors, Ignore};
 
 /// Trait that abstracts over input and output ports.
 pub trait MidiIO {
